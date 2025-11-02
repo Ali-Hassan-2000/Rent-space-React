@@ -1,0 +1,13 @@
+- [✓] Task 1: planning for the project
+- [X] Task 2: create the project main files
+- [X] Task 3: Set up Github (front and back end)
+- [X] Task 4: Implement the main features
+- [X] Task 5: Implement the functions
+- [X] Task 6: Design the app interface
+- [X] Task 7: Implement cloudinary
+- [X] Task 8: Deploy the app
+- [X] Task 10: add items (pics) and categories
+- [X] Task 11:  (future)
+- [X] Task 12:  (future)
+- [X] Task 13:  (future)
+- [X] Task 14: Prepare documentation
