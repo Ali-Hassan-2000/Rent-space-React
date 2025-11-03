@@ -5,39 +5,61 @@ The Rent Space Project is a user-friendly web application designed to showcase a
 **[app link]()**
 
 # App Features
-1. **User Authentication:** Secure sign-up and login functionality for admins to manage the shop effectively.
-2. **Product Management:** Admins can create, update, and delete items, ensuring that the product catalog remains current and relevant.
-3. **Category Browsing:** Users can explore items categorized into various sections, such as traditional crafts, clothing, and souvenirs, making it easy to find specific products.
-4. **Detailed Item Views:** Each item features comprehensive details, including images, descriptions, and prices, to enhance the shopping experience.
+1. **User Authentication**
+    - Secure sign-up and login for space owners and renters
+    - Role-based access control (owners vs. renters)
+    - Token management and secure logout
+
+2. **Advanced Space Management**
+   - Add new rental spaces with detailed information
+   - Edit and update space details, prices, and availability
+   - Delete spaces from the platform
+   - Multiple image uploads for each space
+
+3. **Review & Rating System**
+   - Owner response capability
+   - Verified renter reviews only
+
+4. **Cites Browsing** 
+    - Users can explore apartments into various cites
+
+5. **Detailed Apartment Views** 
+    - Each Apartment features comprehensive details, including images, descriptions, and prices, to enhance the customer experience.
 
 # User Stories:
 1.**User Authentication**
 
-    As an admin, I want to sign up and log in securely so that I can manage the shop without unauthorized access.
+    As a space owner, I want to sign up and log in securely so that I can manage my rental properties without unauthorized access.
+    
+    As a renter, I want to create an account and log in securely so that I can book spaces and manage my reservations.
 
-2.**Browse Items**
+2.**Browse Apartments**
 
-    As a user, I want to browse items by category so that I can easily find products that interest me.
+    As a user, I want to browse spaces by location, price range, and dates so that I can easily find available properties that match my needs.
+    
+    As a user, I want to filter spaces by amenities and property type so that I can find spaces with specific features I require.
 
-3.**View Item Details**
+3.**View Apartment Details**
 
-    As a user, I want to click on an item to view its details, including images, descriptions, and prices, so that I can make informed purchasing decisions.
+    As a user, I want to view comprehensive space details including photos, amenities, pricing, and availability so that I can make informed booking decisions.
+    
+    As a user, I want to see customer reviews and ratings for spaces so that I can assess the quality and reliability of the rental.
 
-4.**Add New Items**
+4.**Add New Apartments**
 
-    As an admin, I want to add new items to the catalog so that I can keep the shop updated with fresh products.
+    As a space owner, I want to add new rental spaces to the platform with detailed information and multiple photos so that I can attract potential renters.
 
-5.**Edit Existing Items**
+5.**Edit Existing Apartments**
 
-    As an admin, I want to edit details of existing items (e.g., price, description) so that the information remains accurate and current.
+    As a space owner, I want to edit space details, update pricing, and modify availability calendars so that my listings remain accurate and current.
 
-6.**Delete Items**
+6.**Delete Apartments**
 
-    As an admin, I want to delete items from the catalog so that I can remove products that are no longer available.
+    As a space owner, I want to remove spaces from the platform so that I can manage properties that are no longer available for rent.
 
-7.**View All Categories**
+7.**Manage Bookings**
 
-    As a user, I want to view all available categories on the site so that I can explore the diversity of products offered.
+    As a renter, I want to book available spaces and view my booking history so that I can manage my travel plans.
 
 
 # Pseudocode:
@@ -60,38 +82,101 @@ The Rent Space Project is a user-friendly web application designed to showcase a
             If the admin exists, check the provided password against the stored hashed password.
             If the password matches, create a admin session and return a success message.
             If the password does not match, return an "Incorrect password" message.
+
+        3. verifyToken(token)
+            Steps:
+            Extract token from request header.
+            Verify JWT token signature and expiration.
+            If valid, extract user payload and attach to request.
+            If invalid, return "Unauthorized access" error.
     ```
 
-* **Item Management Functions**
+* **Apartments Management Functions**
     ````
-        1. AddItem(itemName, itemPrice, itemDescription, itemImg, itemCategory)
+        1. addSpace(spaceData, ownerId)
             Steps:
-            Create an item object with the provided details (name, price, description, image, category).
-            Save this item object to the database.
+            Validate space data (name, price, location, description, amenities).
+            Create space object with provided details and owner ID.
+            Upload space images to cloud storage.
+            Save space object to database with availability calendar.
+            Return created space with ID.
 
-        2. editItem(itemId, updatedFields)
+        2. editSpace(spaceId, updatedFields, ownerId)
             Steps:
-            Retrieve the item from the database using the provided item ID.
-            If the item exists, update it with the new fields provided.
-            Save the updated item back to the database.
+            Verify space exists and belongs to owner using ownerId.
+            If not authorized, return "Access denied" error.
+            Update space with new fields provided.
+            If images updated, handle image upload/replacement.
+            Save updated space to database.
+            Return updated space object.
 
-        3. deleteItem(itemId)
+        3. deleteSpace(spaceId, ownerId)
             Steps:
-            Retrieve the item from the database using the provided item ID.
-            Remove it from the database.
+            Verify space exists and belongs to owner using ownerId.
+            If not authorized, return "Access denied" error.
+            Remove space from database.
+            Clean up associated images from storage.
+            Return success message.
+
+        4. getOwnerSpaces(ownerId)
+            Steps:
+            Fetch all spaces from database where owner = ownerId.
+            Include booking statistics and revenue data.
+            Return spaces list with analytics.
     ````
 
-* **Browsing Items Functions**
+* **Booking Apartments Functions**
     ````
-        1. getAllCategories()
+        1. createBooking(spaceId, customerId, checkInDate, duration)
             Steps:
-            Fetch the list of categories from the database.
-            Return the list of categories.
+            Verify space availability for requested dates.
+            If available, create booking object with:
+              - spaceId, customerId, checkInDate, checkOutDate
+              - total price, booking status: "confirmed"
+            Update space availability calendar.
+            Save booking to database.
+            Send confirmation notification.
+            Return booking details with confirmation.
 
-        2. getItemsByCategory(categoryId)
+        2. getCustomerBookings(customerId)
             Steps:
-            Fetch items from the database that match the provided category ID.
-            Return the list of items found.
+            Fetch all bookings for customer from database.
+            Include space details and booking status.
+            Return bookings list.
+
+        3. cancelBooking(bookingId, customerId)
+            Steps:
+            Verify booking exists and belongs to customer.
+            If within cancellation period, update booking status to "cancelled".
+            Update space availability calendar.
+            Process refund if applicable.
+            Return cancellation confirmation.
+    ````
+
+* **Review & Rating Functions**
+    ````
+        1. createReview(spaceId, customerId, bookingId, rating, comment)
+            Steps:
+            Verify customer has completed booking (checked out).
+            If not completed, return "Review not allowed" error.
+            Create review object with rating and comment.
+            Calculate new average rating for space.
+            Save review to database.
+            Update space average rating.
+            Return created review.
+
+        2. getSpaceReviews(spaceId)
+            Steps:
+            Fetch all approved reviews for space from database.
+            Include customer information and booking date.
+            Calculate average rating and rating distribution.
+            Return reviews with statistics.
+
+        3. getCustomerReviews(customerId)
+            Steps:
+            Fetch all reviews written by customer.
+            Include space details and review status.
+            Return customer's review history.
     ````
 
 # Useful pics:
